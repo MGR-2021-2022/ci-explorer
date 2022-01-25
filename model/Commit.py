@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import relationship
 from SqlAlchemyBase import Base
 
@@ -11,7 +11,7 @@ class Commit(Base):
     author_id = Column(Integer, ForeignKey('user.id'))
     author = relationship("User", back_populates="commits")
     modified_lines = Column(Integer)
-    modified_files = Column(String)
+    modified_files = Column(JSON)
     order_number = Column(Integer)
     pull_request_id = Column(Integer, ForeignKey('pull_request.id'))
     pull_request = relationship("PullRequest", back_populates="commits")

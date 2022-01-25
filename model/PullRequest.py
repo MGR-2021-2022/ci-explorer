@@ -9,7 +9,7 @@ class PullRequest(Base):
     id = Column(Integer, primary_key=True)
     hash = Column(String)
     repository_id = Column(Integer, ForeignKey('repository.id'))
-    repository = relationship("Repository", back_populates="pull_requests")
+    repository = relationship("reeepository", back_populates="pull_requests")
     status = Column(String)
     created_at = Column(DateTime)
     commits = relationship("Commit", back_populates="pull_request")

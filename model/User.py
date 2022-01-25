@@ -9,5 +9,4 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     commits = relationship("Commit", back_populates="author")
-
-
+    repositories = relationship("Repository", back_populates="owner")
