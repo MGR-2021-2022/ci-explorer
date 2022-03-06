@@ -6,7 +6,7 @@ CREATE TABLE `user` (
 CREATE TABLE `pull_request` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255),
-  `hash` varchar(255),
+  `number` int,
   `repository_id` int,
   `status` varchar(255),
   `created_at` datetime

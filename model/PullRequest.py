@@ -8,7 +8,7 @@ class PullRequest(Base):
     __tablename__ = "pull_request"
 
     id = Column(Integer, primary_key=True)
-    hash = Column(String)
+    number = Column(Integer)
     repository_id = Column(Integer, ForeignKey('repository.id'))
     repository = relationship(Repository.__name__, back_populates="pull_requests")
     status = Column(String)

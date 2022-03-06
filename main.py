@@ -96,7 +96,7 @@ def inspects_pulls(pulls, last_pull_number = 0):
         for pull in pulls:
             if skip_pull(pull.number, last_pull_number):
                 continue
-            pull_request_model = PullRequestModel(hash=pull.id, repository_id=repo_model.id, status=pull.state, created_at=pull.created_at)
+            pull_request_model = PullRequestModel(number=pull.number, repository_id=repo_model.id, status=pull.state, created_at=pull.created_at)
             db_manager.save_to_db(pull_request_model, False)
 
             commits = pull.get_commits()
@@ -132,8 +132,6 @@ last_pull_number = 0
 inspects_pulls(pulls, last_pull_number)
 
 
-
-# wypisac blad
 # zmienić id na number
 # dodać usuwanie ostatniego PR
 # usunąć globale
