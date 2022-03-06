@@ -29,7 +29,8 @@ CREATE TABLE `repository` (
   `owner_id` int,
   `created_at` datetime,
   `language` varchar(255),
-  `labels` JSON
+  `labels` JSON,
+  `fetching_finished` bool DEFAULT false
 );
 
 CREATE TABLE `check_run` (

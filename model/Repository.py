@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON, Boolean
 from sqlalchemy.orm import relationship
 from SqlAlchemyBase import Base
 from model.User import User
@@ -15,3 +15,4 @@ class Repository(Base):
     # created_at = Column(DateTime)
     language = Column(String)
     labels = Column(JSON)
+    fetching_finished = Column(Boolean, default=False)
