@@ -1,9 +1,4 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-import csv
-import time
+import traceback
 from typing import List
 
 from github import Github, PaginatedList, CheckRun, PullRequest, RateLimitExceededException
@@ -114,8 +109,8 @@ def inspects_pulls(pulls, last_pull_number = 0):
             print(pull.id)
             print(commits.totalCount)
             print(g.rate_limiting[0])
-    except Exception:
-        print(repo_model.name)
+    except Exception as e:
+        traceback.print_exc()
         print("Fail due to internal error")
 
 
@@ -137,7 +132,7 @@ last_pull_number = 0
 inspects_pulls(pulls, last_pull_number)
 
 
-# ubrać w funkcje kod
+
 # wypisac blad
 # zmienić id na number
 # dodać usuwanie ostatniego PR
