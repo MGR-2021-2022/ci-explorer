@@ -19,7 +19,7 @@ with open('commit_after_failure.csv', 'w', encoding='UTF8') as f:
         is_after_check_fail = False
         for commit in pull_request.commits:
             check_runs_fail = any(inspection.conclusion == 'failure' or inspection.conclusion == 'cancelled' for inspection in commit.check_runs)
-            commit_row = [commit.modified_lines, is_after_check_fail, commit.files_edited, not check_runs_fail]
+            commit_row = [commit.modified_lines, is_after_check_fail, commit.modified_files, not check_runs_fail]
             is_after_check_fail = check_runs_fail
 
             data_rows.append(commit_row)

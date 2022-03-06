@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import relationship
 from SqlAlchemyBase import Base
+from model.CheckRun import CheckRun
 
 
 class Commit(Base):
@@ -16,4 +17,4 @@ class Commit(Base):
     pull_request_id = Column(Integer, ForeignKey('pull_request.id'))
     pull_request = relationship("PullRequest", back_populates="commits")
     created_at = Column(DateTime)
-    check_runs = relationship("CheckRun", back_populates="commit")
+    check_runs = relationship(CheckRun.__name__, back_populates="commit")
