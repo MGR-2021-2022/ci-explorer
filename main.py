@@ -39,7 +39,7 @@ def inspectChecks(checks: PaginatedList, commit_model: CommitModel):
                                     status=check.status, conclusion=check.conclusion, order_number=order,
                                     total_count=checks.totalCount, commit_id=commit_model.id,
                                     started_at=check.started_at, finished_at=check.completed_at)
-        db_manager.save_to_db(check_model, False)
+        db_manager.save(check_model, False)
 
 def inspectCommits(commits: PaginatedList, pull_request_model: PullRequestModel):
     global db_manager, user_repository
@@ -51,7 +51,7 @@ def inspectCommits(commits: PaginatedList, pull_request_model: PullRequestModel)
         commit_model = CommitModel(hash=commit.sha, author_id=user_model.id, modified_lines=commit.stats.total,
                                    modified_files=files_changed, order_number=counter,
                                    created_at=commit.commit.author.date, pull_request_id=pull_request_model.id)
-        db_manager.save_to_db(commit_model, False)
+        db_manager.save(commit_model, False)
         inspectChecks(commit.get_check_runs(), commit_model)
 
 
@@ -78,7 +78,7 @@ def save_repo():
     owner = repo.owner
     user_model = user_repository.findOrCreate(owner.name)
     repo_model = RepositoryModel(name=repo_name, owner_id=user_model.id)
-    db_manager.save_to_db(repo_model)
+    db_manager.save(repo_model)
     print(repo.name)
 
 
@@ -87,31 +87,39 @@ def skip_pull(current: int, destination: int):
     return destination != 0 and destination is not None and current <= destination
 
 
-# def remove_last_pull_request():
-#     for commit in pull_request_model.commits:
+def remove_last_pull_request(pull_request_model: PullRequestModel):
+    global db_manager
+    for commit_model in pull_request_model.commits:
+        for check_model in commit_model.check_runs:
+            db_manager.remove(check_model)
+        db_manager.remove(commit_model)
+    db_manager.remove(pull_request_model)
 
 
 def inspects_pulls(pulls, last_pull_number = 0):
+    global db_manager
     try:
         for pull in pulls:
             if skip_pull(pull.number, last_pull_number):
                 continue
             pull_request_model = PullRequestModel(number=pull.number, repository_id=repo_model.id, status=pull.state, created_at=pull.created_at)
-            db_manager.save_to_db(pull_request_model, False)
+            db_manager.save(pull_request_model, False)
 
             commits = pull.get_commits()
             if(g.rate_limiting[0] > commits.totalCount * 10):
                 inspectCommits(pull.get_commits(), pull_request_model)
                 db_manager.flush()
             else:
+                remove_last_pull_request(pull_request_model)
                 print("Due to api limitations, not proceeded with pull request: " + str(pull.id))
                 break
-            print(pull.id)
+            print(pull.number)
             print(commits.totalCount)
             print(g.rate_limiting[0])
     except Exception as e:
+        print("Fail due to internal error on PR: " + str(pull_request_model.number))
+        remove_last_pull_request(pull_request_model)
         traceback.print_exc()
-        print("Fail due to internal error")
 
 
 
@@ -132,8 +140,10 @@ last_pull_number = 0
 inspects_pulls(pulls, last_pull_number)
 
 
-# zmienić id na number
-# dodać usuwanie ostatniego PR
-# usunąć globale
 # zapisywac ostatni fail
+# czytelniejsze logi
+# usunąć globale
+# przesunąć więcej do funkcji
+# dodać typy i wyeliminować żółte opisy
+# doparametrowac baze danych
 

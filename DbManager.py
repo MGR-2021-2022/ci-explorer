@@ -6,18 +6,15 @@ class DbManager():
     def __init__(self, session: Session):
         self.session = session
 
-    def save_to_db(self, model: Model, flush: bool = True):
-        pass
+    def save(self, model: Model, flush: bool = True):
         self.session.add(model)
         self.flush()
 
-    def remove_from_db(self, model: Model, flush: bool = True):
-        pass
-        self.session.add(model)
+    def remove(self, model: Model, flush: bool = True):
+        self.session.delete(model)
         self.flush()
 
     def flush(self):
-        pass
         self.session.commit()
 
     def query(self, class_type: type):

@@ -10,5 +10,5 @@ class UserRepository:
         user = self.db_manager.query(User).filter_by(name=name).first()
         if user is None:
             user = User(name=name)
-            self.db_manager.save_to_db(user)
+            self.db_manager.save(user)
         return user
