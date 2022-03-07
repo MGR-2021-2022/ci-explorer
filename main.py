@@ -93,7 +93,6 @@ def get_last_pull_number(repo_model_id: int):
 
 
 def skip_pull(current: int, destination: int):
-    print(current)
     return destination != 0 and destination is not None and current >= destination
 
 
@@ -111,6 +110,7 @@ def inspects_pulls(pulls, last_pull_number = 0):
     try:
         for pull in pulls:
             if skip_pull(pull.number, last_pull_number):
+                print("Skipping pull request with number:" + str(last_pull_number))
                 continue
             pull_request_model = PullRequestModel(number=pull.number, repository_id=repo_model.id, status=pull.state, created_at=pull.created_at)
             db_manager.save(pull_request_model, False)
@@ -122,15 +122,17 @@ def inspects_pulls(pulls, last_pull_number = 0):
                 remove_last_pull_request(pull_request_model)
                 print("Due to api limitations, not proceeded with pull request: " + str(pull.id))
                 break
-            print(pull.number)
-            print(commits.totalCount)
-            print(g.rate_limiting[0])
+            print("---")
+            print("Pull number(id): " + str(pull.number))
+            print("Commits number: " + str(commits.totalCount))
+            print("Api hits left: " + str(g.rate_limiting[0]))
     except Exception as e:
         print("Fail due to internal error on PR: " + str(pull_request_model.number))
         remove_last_pull_request(pull_request_model)
         traceback.print_exc()
     repo_model.finished = True
     db_manager.save(repo_model)
+    print("Successfully finished data download for: " + str(repo_model.name))
 
 
 set_db()
@@ -142,9 +144,9 @@ last_pull_number = get_last_pull_number(repo_model.id)
 inspects_pulls(pulls, last_pull_number)
 
 
-# czytelniejsze logi
 # usunąć globale
 # przesunąć więcej do funkcji
 # dodać typy i wyeliminować żółte opisy
 # dodać datę utworzenia repozytorium
 # dodać language & labels
+# dodać wyszukiwanie repo samorzutnie
