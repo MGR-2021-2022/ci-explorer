@@ -1,6 +1,7 @@
 CREATE TABLE `user` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(255)
+  `name` varchar(255),
+  `fetched_at` datetime DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `pull_request` (
@@ -9,7 +10,8 @@ CREATE TABLE `pull_request` (
   `number` int,
   `repository_id` int,
   `status` varchar(255),
-  `created_at` datetime
+  `created_at` datetime,
+  `fetched_at` datetime DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `commit` (
@@ -20,7 +22,8 @@ CREATE TABLE `commit` (
   `modified_files` json,
   `order_number` int,
   `pull_request_id` int,
-  `created_at` datetime
+  `created_at` datetime,
+  `fetched_at` datetime DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `repository` (
@@ -29,8 +32,9 @@ CREATE TABLE `repository` (
   `owner_id` int,
   `created_at` datetime,
   `language` varchar(255),
-  `labels` JSON,
-  `fetching_finished` bool DEFAULT false
+  `topics` JSON,
+  `fetching_finished` bool DEFAULT false,
+  `fetched_at` datetime DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `check_run` (
@@ -44,7 +48,8 @@ CREATE TABLE `check_run` (
   `started_at` datetime,
   `finished_at` datetime,
   `order_number` int,
-  `total_count` int
+  `total_count` int,
+  `fetched_at` datetime DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE `pull_request` ADD FOREIGN KEY (`repository_id`) REFERENCES `repository` (`id`);

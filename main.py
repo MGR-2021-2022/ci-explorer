@@ -76,11 +76,9 @@ def save_repo():
     # repo_name = 'ishepard/pydriller'
     repo_name = 'microsoft/vscode'
     repo = g.get_repo(repo_name)
-    language = repo.language
-    labels = repo.get_labels()
     owner = repo.owner
     user_model = user_repository.findOrCreate(owner.name)
-    repo_model = repository_repository.findOrCreate(name=repo_name, owner_id=user_model.id)
+    repo_model = repository_repository.findOrCreate(name=repo_name, owner_id=user_model.id, created_at=repo.created_at, language=repo.language, topics=repo.get_topics())
     db_manager.save(repo_model)
     print(repo.name)
 
