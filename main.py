@@ -1,7 +1,7 @@
 import traceback
 from typing import List
 
-from github import Github, PaginatedList, CheckRun, PullRequest, RateLimitExceededException
+from github import Github, PaginatedList, CheckRun, PullRequest, RateLimitExceededException, Repository
 from sqlalchemy import select, desc
 
 from DbManager import DbManager
@@ -12,10 +12,6 @@ from model.CheckRun import CheckRun as CheckRunModel
 from model.PullRequest import PullRequest as PullRequestModel
 from repository.RepositoryRepository import RepositoryRepository
 from repository.UserRepository import UserRepository
-
-db_manager = None
-user_repository = None
-repo = repo_model = None
 
 def generateChangedFilesJson(files: List):
     files_json = {}
@@ -57,12 +53,12 @@ def inspectCommits(commits: PaginatedList, pull_request_model: PullRequestModel)
         inspectChecks(commit.get_check_runs(), commit_model)
 
 
-def set_db():
-    global db_manager, user_repository, repository_repository, db_session
+def set_db() -> (DbManager, UserRepository, RepositoryRepository, Session):
     db_session = Session()
     db_manager = DbManager(db_session)
     user_repository = UserRepository(db_manager)
     repository_repository = RepositoryRepository(db_manager)
+    return db_manager, user_repository, repository_repository, db_session
 
 
 def connect_repo():
@@ -70,9 +66,8 @@ def connect_repo():
     g = Github(base_url="https://api.github.com", login_or_token="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")
 
 
-
-def save_repo():
-    global db_manager, user_repository, repo, repo_model
+def save_repo(db_manager: DbManager, user_repository: UserRepository, repository_repository: RepositoryRepository
+              ) -> (Repository, RepositoryModel):
     # repo_name = 'ishepard/pydriller'
     repo_name = 'microsoft/vscode'
     repo = g.get_repo(repo_name)
@@ -81,13 +76,14 @@ def save_repo():
     repo_model = repository_repository.findOrCreate(name=repo_name, owner_id=user_model.id, created_at=repo.created_at, language=repo.language, topics=repo.get_topics())
     db_manager.save(repo_model)
     print(repo.name)
+    return repo_model, repo
 
 
-def get_last_pull_number(repo_model_id: int):
+def get_last_pull_number(repo_model: RepositoryModel):
     if len(repo_model.pull_requests) == 0:
         return 0
     return db_session.execute(select(PullRequestModel.number).
-                              where(PullRequestModel.repository_id == repo_model_id).order_by(desc("id"))).fetchone()[0]
+                              where(PullRequestModel.repository_id == repo_model.id).order_by(desc("id"))).fetchone()[0]
 
 
 def skip_pull(current: int, destination: int):
@@ -96,7 +92,7 @@ def skip_pull(current: int, destination: int):
 
 def remove_last_pull_request(pull_request_model: PullRequestModel):
     global db_manager
-    for commit_model in pull_request_model.commits:
+    for commit_model in pull_request_model.ommits:
         for check_model in commit_model.check_runs:
             db_manager.remove(check_model)
         db_manager.remove(commit_model)
@@ -104,6 +100,9 @@ def remove_last_pull_request(pull_request_model: PullRequestModel):
 
 
 def inspects_pulls(pulls, last_pull_number = 0):
+    """
+    :param pulls: :class:`github.PaginatedList.PaginatedList` of :class:`github.PullRequest.PullRequest`
+    """
     global db_manager
     try:
         for pull in pulls:
@@ -114,7 +113,7 @@ def inspects_pulls(pulls, last_pull_number = 0):
             db_manager.save(pull_request_model, False)
 
             commits = pull.get_commits()
-            if(g.rate_limiting[0] > commits.totalCount * 10):
+            if g.rate_limiting[0] > commits.totalCount * 10:
                 inspectCommits(pull.get_commits(), pull_request_model)
             else:
                 remove_last_pull_request(pull_request_model)
@@ -133,18 +132,16 @@ def inspects_pulls(pulls, last_pull_number = 0):
     print("Successfully finished data download for: " + str(repo_model.name))
 
 
-set_db()
+(db_manager, user_repository, repository_repository, db_session) = set_db()
 connect_repo()
-save_repo()
+(repo_model, repo) = save_repo(db_manager, user_repository, repository_repository)
 
 pulls = repo.get_pulls('closed')
-last_pull_number = get_last_pull_number(repo_model.id)
+last_pull_number = get_last_pull_number(repo_model)
 inspects_pulls(pulls, last_pull_number)
 
 
 # usunąć globale
 # przesunąć więcej do funkcji
 # dodać typy i wyeliminować żółte opisy
-# dodać datę utworzenia repozytorium
-# dodać language & labels
 # dodać wyszukiwanie repo samorzutnie
