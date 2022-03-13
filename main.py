@@ -30,7 +30,8 @@ def generateChangedLabelsJson(labels: PaginatedList):
 def inspectChecks(checks: PaginatedList, commit_model: CommitModel):
     global db_manager
     order = 0
-
+    if checks == None:
+        return
     for check in checks:
         order += 1
         check_model = CheckRunModel(github_id=check.id, name=check.name, check_suit_id=check.check_suite_id,
@@ -44,11 +45,11 @@ def inspectCommits(commits: PaginatedList, pull_request_model: PullRequestModel)
     counter = 0
     for commit in commits:
         counter += 1
-        user_model = user_repository.findOrCreate(name=commit.commit.author.name)
+        user_model = user_repository.findOrCreate(name=commit.commit.author.email)
         files_changed = generateChangedFilesJson(commit.files)
         commit_model = CommitModel(hash=commit.sha, author_id=user_model.id, modified_lines=commit.stats.total,
                                    modified_files=files_changed, order_number=counter,
-                                   created_at=commit.commit.author.date, pull_request_id=pull_request_model.id)
+                                   created_at=commit.commit.committer.date, pull_request_id=pull_request_model.id)
         db_manager.save(commit_model, False)
         inspectChecks(commit.get_check_runs(), commit_model)
 
@@ -72,7 +73,7 @@ def save_repo(db_manager: DbManager, user_repository: UserRepository, repository
     repo_name = 'microsoft/vscode'
     repo = g.get_repo(repo_name)
     owner = repo.owner
-    user_model = user_repository.findOrCreate(owner.name)
+    user_model = user_repository.findOrCreate(owner.login)
     repo_model = repository_repository.findOrCreate(name=repo_name, owner_id=user_model.id, created_at=repo.created_at, language=repo.language, topics=repo.get_topics())
     db_manager.save(repo_model)
     print(repo.name)
@@ -92,14 +93,14 @@ def skip_pull(current: int, destination: int):
 
 def remove_last_pull_request(pull_request_model: PullRequestModel):
     global db_manager
-    for commit_model in pull_request_model.ommits:
+    for commit_model in pull_request_model.commits:
         for check_model in commit_model.check_runs:
             db_manager.remove(check_model)
         db_manager.remove(commit_model)
     db_manager.remove(pull_request_model)
 
 
-def inspects_pulls(pulls, last_pull_number = 0):
+def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
     """
     :param pulls: :class:`github.PaginatedList.PaginatedList` of :class:`github.PullRequest.PullRequest`
     """
@@ -107,29 +108,34 @@ def inspects_pulls(pulls, last_pull_number = 0):
     try:
         for pull in pulls:
             if skip_pull(pull.number, last_pull_number):
-                print("Skipping pull request with number:" + str(last_pull_number))
+                print("Already fetched. Skipping pull request with number:" + str(pull.number))
+                continue
+            if pull.base.ref != main_branch_name:
+                print("Not main. Skipping pull request with number:" + str(pull.number))
                 continue
             pull_request_model = PullRequestModel(number=pull.number, repository_id=repo_model.id, status=pull.state, created_at=pull.created_at)
             db_manager.save(pull_request_model, False)
 
             commits = pull.get_commits()
-            if g.rate_limiting[0] > commits.totalCount * 10:
+            if g.rate_limiting[0] > commits.totalCount * 1:
                 inspectCommits(pull.get_commits(), pull_request_model)
             else:
                 remove_last_pull_request(pull_request_model)
                 print("Due to api limitations, not proceeded with pull request: " + str(pull.id))
-                break
+                return
             print("---")
             print("Pull number(id): " + str(pull.number))
             print("Commits number: " + str(commits.totalCount))
             print("Api hits left: " + str(g.rate_limiting[0]))
+        repo_model.finished = True
+        db_manager.save(repo_model)
+        print("Successfully finished data download for: " + str(repo_model.name))
     except Exception as e:
         print("Fail due to internal error on PR: " + str(pull_request_model.number))
-        remove_last_pull_request(pull_request_model)
+        if pull_request_model != None:
+            remove_last_pull_request(pull_request_model)
         traceback.print_exc()
-    repo_model.finished = True
-    db_manager.save(repo_model)
-    print("Successfully finished data download for: " + str(repo_model.name))
+
 
 
 (db_manager, user_repository, repository_repository, db_session) = set_db()
@@ -138,7 +144,9 @@ connect_repo()
 
 pulls = repo.get_pulls('closed')
 last_pull_number = get_last_pull_number(repo_model)
-inspects_pulls(pulls, last_pull_number)
+# pull_to_rm = db_manager.query(PullRequestModel).filter(PullRequestModel.number==134402).first()
+# remove_last_pull_request(pull_to_rm)
+inspects_pulls(pulls, 'main', last_pull_number)
 
 
 # usunąć globale
