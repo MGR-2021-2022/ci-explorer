@@ -69,8 +69,8 @@ def connect_repo():
 
 def save_repo(db_manager: DbManager, user_repository: UserRepository, repository_repository: RepositoryRepository
               ) -> (Repository, RepositoryModel):
-    # repo_name = 'ishepard/pydriller'
-    repo_name = 'microsoft/vscode'
+    repo_name = 'ishepard/pydriller'
+    # repo_name = 'microsoft/vscode'
     repo = g.get_repo(repo_name)
     owner = repo.owner
     user_model = user_repository.findOrCreate(owner.login)
