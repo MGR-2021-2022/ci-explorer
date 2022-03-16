@@ -146,10 +146,13 @@ pulls = repo.get_pulls('closed')
 last_pull_number = get_last_pull_number(repo_model)
 # pull_to_rm = db_manager.query(PullRequestModel).filter(PullRequestModel.number==134402).first()
 # remove_last_pull_request(pull_to_rm)
-inspects_pulls(pulls, 'main', last_pull_number)
+inspects_pulls(pulls, 'master', last_pull_number)
 
 
 # usunąć globale
 # przesunąć więcej do funkcji
 # dodać typy i wyeliminować żółte opisy
 # dodać wyszukiwanie repo samorzutnie
+
+# dodac jaki master
+# lepiej radzic sobie z errorami

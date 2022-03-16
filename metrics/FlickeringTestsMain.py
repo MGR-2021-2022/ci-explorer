@@ -2,6 +2,10 @@ from SqlAlchemyBase import Session
 from model.PullRequest import PullRequest
 from model.Repository import Repository
 
+
+#8
+
+
 def count_flickering_tests(repo: Repository) -> int:
     flickering_tests_count = 0
     commits_with_tests = 0
@@ -15,7 +19,7 @@ def count_flickering_tests(repo: Repository) -> int:
                     if(check.conclusion == 'failure'):
                         current_commit_failed = True
                         break
-                if current_commit_failed and not current_commit_failed and commit.modified_lines == 0:
+                if previous_commit_failed and not current_commit_failed and commit.modified_lines == 0:
                     flickering_tests_count += 1
                 previous_commit_failed = current_commit_failed
     print(commits_with_tests)

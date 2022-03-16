@@ -3,6 +3,9 @@ from model.PullRequest import PullRequest
 from model.Repository import Repository
 
 
+#4
+
+
 def count_number_of_commits(repo: Repository) -> int:
     result = {
         "success": {"pull_count": 0, "commit_count": 0},
