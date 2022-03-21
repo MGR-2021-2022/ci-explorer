@@ -61,7 +61,7 @@ repos = db_session.query(Repository).all()
 
 for repo in repos:
     print(repo.name)
-    result = count_number_of_commits(repo)
+    result = count_lines_written(repo)
     # print_result("fail", result)
     # print_result("success", result)
 
