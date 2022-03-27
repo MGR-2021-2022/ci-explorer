@@ -1,4 +1,5 @@
 from SqlAlchemyBase import Session
+from metrics.helpers.ResultsHelper import ResultsHelper
 from model.PullRequest import PullRequest
 from model.Repository import Repository
 
@@ -49,10 +50,7 @@ for repo in repos:
     print_result("success", result)
     print_result("fail", result)
     print_result("total", result)
-    for row in total_result.items():
-        for key in row[1].keys():
-            total_result[row[0]][key] += result[row[0]][key]
-
+    total_result = ResultsHelper.add_results_nested(total_result, result)
 
 print("In total:")
 print_result("success", total_result)

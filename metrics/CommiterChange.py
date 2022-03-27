@@ -1,4 +1,5 @@
 from SqlAlchemyBase import Session
+from metrics.helpers.ResultsHelper import ResultsHelper
 from model.PullRequest import PullRequest
 from model.Repository import Repository
 
@@ -9,7 +10,8 @@ from model.Repository import Repository
 def count_number_of_commits(repo: Repository) -> object:
     result = {
         "success": {"pull_count": 0, "authors_count": 0, "first_and_last": 0, "always": 0},
-        "fail": {"pull_count": 0, "authors_count": 0, "first_and_last": 0, "always": 0}
+        "fail": {"pull_count": 0, "authors_count": 0, "first_and_last": 0, "always": 0},
+        "total": {"pull_count": 0, "authors_count": 0, "first_and_last": 0, "always": 0}
     }
 
     pull_with_success_count = {"pull_count": 0, "commit_count": 0}
@@ -38,6 +40,10 @@ def count_number_of_commits(repo: Repository) -> object:
         result[label]["authors_count"] += len(authors)
         result[label]["first_and_last"] += first_author == last_author
         result[label]["always"] += same_author
+        result["total"]["pull_count"] += 1
+        result["total"]["authors_count"] += len(authors)
+        result["total"]["first_and_last"] += first_author == last_author
+        result["total"]["always"] += same_author
 
 
     return result
@@ -49,17 +55,36 @@ def print_result(label: str, result: object) -> None:
           + str(result[label]["first_and_last"]) + " (average: "
           + str(result[label]["first_and_last"]/result[label]["pull_count"]) + ")| always same author: "
           + str(result[label]["always"]) + " (average: " + str(result[label]["always"]/result[label]["pull_count"]) + ")")
-
+    
+    print(str(result[label]["pull_count"]))
+    print(str(result[label]["authors_count"]))
+    print(str(result[label]["authors_count"]/result[label]["pull_count"]))
+    print(str(result[label]["first_and_last"]))
+    print(str(result[label]["first_and_last"]/result[label]["pull_count"]))
+    print(str(result[label]["always"]))
+    print(str(result[label]["always"]/result[label]["pull_count"]))
 db_session = Session()
 # db_manager = DbManager(db_session) # todo część wspólna z mainem
 
 repos = db_session.query(Repository).all()
 
+total_results = {
+    "success": {"pull_count": 0, "authors_count": 0, "first_and_last": 0, "always": 0},
+    "fail": {"pull_count": 0, "authors_count": 0, "first_and_last": 0, "always": 0},
+    "total": {"pull_count": 0, "authors_count": 0, "first_and_last": 0, "always": 0}
+}
 for repo in repos:
     print(repo.name)
     result = count_number_of_commits(repo)
-    print_result("fail", result)
     print_result("success", result)
-
+    print_result("fail", result)
+    print_result("total", result)
+    print("")
+    total_results = ResultsHelper.add_results_nested(total_results, result)
+    
+print("In total:")
+print_result("success", total_results)
+print_result("fail", total_results)
+print_result("total", total_results)
 
 # jak duze byly te commity, bo pewnie roznica bierze sie z tego ze successy to byly pushe pierdolek
