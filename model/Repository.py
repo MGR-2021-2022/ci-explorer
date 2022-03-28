@@ -16,3 +16,5 @@ class Repository(Base):
     language = Column(String)
     topics = Column(JSON)
     fetching_finished = Column(Boolean, default=False)
+    main_branch = Column(String)
+

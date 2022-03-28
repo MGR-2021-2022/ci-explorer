@@ -1,3 +1,4 @@
+import time
 import traceback
 from typing import List
 
@@ -69,8 +70,8 @@ def connect_repo():
 
 def save_repo(db_manager: DbManager, user_repository: UserRepository, repository_repository: RepositoryRepository
               ) -> (Repository, RepositoryModel):
-    repo_name = 'ishepard/pydriller'
-    # repo_name = 'microsoft/vscode'
+    # repo_name = 'ishepard/pydriller'
+    repo_name = 'microsoft/vscode'
     repo = g.get_repo(repo_name)
     owner = repo.owner
     user_model = user_repository.findOrCreate(owner.login)
@@ -85,6 +86,15 @@ def get_last_pull_number(repo_model: RepositoryModel):
         return 0
     return db_session.execute(select(PullRequestModel.number).
                               where(PullRequestModel.repository_id == repo_model.id).order_by(desc("id"))).fetchone()[0]
+
+def inspect_pull(pull: PullRequest, pull_request_model: PullRequestModel):
+
+    commits = pull.get_commits()
+    inspectCommits(pull.get_commits(), pull_request_model)
+    print("---")
+    print("Pull number(id): " + str(pull.number))
+    print("Commits number: " + str(commits.totalCount))
+    print("Api hits left: " + str(g.rate_limiting[0]))
 
 
 def skip_pull(current: int, destination: int):
@@ -104,37 +114,53 @@ def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
     """
     :param pulls: :class:`github.PaginatedList.PaginatedList` of :class:`github.PullRequest.PullRequest`
     """
-    global db_manager
-    try:
-        for pull in pulls:
-            if skip_pull(pull.number, last_pull_number):
-                print("Already fetched. Skipping pull request with number:" + str(pull.number))
-                continue
-            if pull.base.ref != main_branch_name:
-                print("Not main. Skipping pull request with number:" + str(pull.number))
-                continue
-            pull_request_model = PullRequestModel(number=pull.number, repository_id=repo_model.id, status=pull.state, created_at=pull.created_at)
+    pulls = iter(pulls)
+    pull = next(pulls, 0)
+    next_pull = True
+    failed_pull = 0
+    failed_pull_counter = 0
+    while pull != 0:
+        if skip_pull(pull.number, last_pull_number):
+            print("Already fetched. Skipping pull request with number:" + str(pull.number))
+            pull = next(pulls, 0)
+            continue
+        if pull.base.ref != "main" and pull.base.ref != "master":
+            print("Not main. Skipping pull request with number:" + str(pull.number))
+            pull = next(pulls, 0)
+            continue
+        try:
+            pull_request_model = PullRequestModel(number=pull.number, repository_id=repo_model.id,
+                                                  status=pull.state,
+                                                  created_at=pull.created_at)
             db_manager.save(pull_request_model, False)
-
-            commits = pull.get_commits()
-            if g.rate_limiting[0] > commits.totalCount * 1:
-                inspectCommits(pull.get_commits(), pull_request_model)
-            else:
+            inspect_pull(pull, pull_request_model)
+        except Exception as e:
+            print("Fail due to internal error on PR: " + str(pull_request_model.number))
+            if pull_request_model != None:
                 remove_last_pull_request(pull_request_model)
-                print("Due to api limitations, not proceeded with pull request: " + str(pull.id))
-                return
-            print("---")
-            print("Pull number(id): " + str(pull.number))
-            print("Commits number: " + str(commits.totalCount))
-            print("Api hits left: " + str(g.rate_limiting[0]))
-        repo_model.finished = True
-        db_manager.save(repo_model)
-        print("Successfully finished data download for: " + str(repo_model.name))
-    except Exception as e:
-        print("Fail due to internal error on PR: " + str(pull_request_model.number))
-        if pull_request_model != None:
-            remove_last_pull_request(pull_request_model)
-        traceback.print_exc()
+                if failed_pull == pull_request_model.number and not isinstance(e, RateLimitExceededException):
+                    failed_pull_counter += 1
+                else:
+                    failed_pull = pull_request_model.number
+                    failed_pull_counter = 1
+
+            if failed_pull_counter >= 3:
+                pull_request_model = PullRequestModel(number=pull.number, failed_to_fetch = True)
+                next_pull = True
+            else:
+                next_pull = False
+            traceback.print_exc()
+            if isinstance(e, RateLimitExceededException):
+                print("Waiting 5 min")
+                time.sleep(300)
+                next_pull = True
+            pass
+        if next_pull is True:
+            pull = next(pulls, 0)
+    repo_model.finished = True
+    db_manager.save(repo_model)
+    print("Successfully finished data download for: " + str(repo_model.name))
+
 
 
 
@@ -147,6 +173,7 @@ last_pull_number = get_last_pull_number(repo_model)
 # pull_to_rm = db_manager.query(PullRequestModel).filter(PullRequestModel.number==134402).first()
 # remove_last_pull_request(pull_to_rm)
 inspects_pulls(pulls, 'master', last_pull_number)
+# inspects_pulls(pulls, 'master', last_pull_number)
 
 
 # usunąć globale

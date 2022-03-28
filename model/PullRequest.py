@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from SqlAlchemyBase import Base
 from model.Repository import Repository
@@ -14,3 +14,4 @@ class PullRequest(Base):
     status = Column(String)
     created_at = Column(DateTime)
     commits = relationship("Commit", back_populates="pull_request")
+    failed_to_fetch = Column(Boolean, default=False)
