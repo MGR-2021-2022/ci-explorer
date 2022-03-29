@@ -151,8 +151,8 @@ def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
                 next_pull = False
             traceback.print_exc()
             if isinstance(e, RateLimitExceededException):
-                print("Waiting 5 min")
-                time.sleep(300)
+                print("Waiting 15 min")
+                time.sleep(900)
                 next_pull = True
             pass
         if next_pull is True:
