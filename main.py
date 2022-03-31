@@ -130,7 +130,7 @@ def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
             continue
         try:
             pull_request_model = PullRequestModel(number=pull.number, repository_id=repo_model.id,
-                                                  status=pull.state,
+                                                  status=pull.state, merged=pull.merged,
                                                   created_at=pull.created_at)
             db_manager.save(pull_request_model, False)
             inspect_pull(pull, pull_request_model)
@@ -144,15 +144,17 @@ def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
                     failed_pull = pull_request_model.number
                     failed_pull_counter = 1
 
-            if failed_pull_counter >= 3:
+            if failed_pull_counter >= 5:
                 pull_request_model = PullRequestModel(number=pull.number, failed_to_fetch = True)
+                db_manager.save(pull_request_model)
+                print(str(pull.number) + "marked as failed to fetch")
                 next_pull = True
             else:
                 next_pull = False
             traceback.print_exc()
             if isinstance(e, RateLimitExceededException):
-                print("Waiting 15 min")
-                time.sleep(900)
+                print("Waiting 10 min")
+                time.sleep(600)
                 next_pull = True
             pass
         if next_pull is True:
@@ -160,8 +162,6 @@ def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
     repo_model.finished = True
     db_manager.save(repo_model)
     print("Successfully finished data download for: " + str(repo_model.name))
-
-
 
 
 (db_manager, user_repository, repository_repository, db_session) = set_db()

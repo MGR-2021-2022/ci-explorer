@@ -10,8 +10,10 @@ CREATE TABLE `pull_request` (
   `number` int,
   `repository_id` int,
   `status` varchar(255),
+  `merged` boolean,
   `created_at` datetime,
-  `fetched_at` datetime DEFAULT CURRENT_TIMESTAMP
+  `fetched_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `failed_to_fetch` boolean
 );
 
 CREATE TABLE `commit` (
@@ -34,7 +36,8 @@ CREATE TABLE `repository` (
   `language` varchar(255),
   `topics` JSON,
   `fetching_finished` bool DEFAULT false,
-  `fetched_at` datetime DEFAULT CURRENT_TIMESTAMP
+  `fetched_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `main_branch` varchar(255)
 );
 
 CREATE TABLE `check_run` (
