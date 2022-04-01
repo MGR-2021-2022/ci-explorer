@@ -2,6 +2,7 @@ import datetime
 
 from SqlAlchemyBase import Session
 from metrics.helpers.StatusRecognizer import StatusRecognizer
+from model.Commit import Commit
 from model.PullRequest import PullRequest
 from model.Repository import Repository
 
@@ -9,7 +10,7 @@ minutes = [0] * 10080
 
 
 class InspectionTime:
-    def getAvgTime(self, pull: PullRequest) -> int:
+    def value(self, pull: PullRequest, commit: Commit) -> int:
         pull_time = datetime.timedelta(0)
         pull_time_count = 0
         for commit in pull.commits:

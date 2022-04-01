@@ -27,7 +27,7 @@ class FailedTestsCalc(Calc):
                         break
 
                 for group in groups:
-                    if group.condition.isFulfilled(pull):
+                    if group.condition.is_fulfilled(pull, commit):
                         if is_failed:
                             results.getResult(group.label).increment_fails()
                         else:

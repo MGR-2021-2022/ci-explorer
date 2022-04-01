@@ -1,6 +1,8 @@
+from metrics.calculations.FailedTests.measures.Measure import Measure
+from model.Commit import Commit
 from model.PullRequest import PullRequest
 
 
 class Condition:
-    def isFulfilled(self, pull: PullRequest) -> bool:
+    def is_fulfilled(self, pull: PullRequest, commit: Commit = None) -> bool:
         return False
