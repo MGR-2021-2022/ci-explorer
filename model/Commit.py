@@ -18,3 +18,5 @@ class Commit(Base):
     pull_request = relationship("PullRequest", back_populates="commits")
     created_at = Column(DateTime)
     check_runs = relationship(CheckRun.__name__, back_populates="commit")
+    user_commit_number = Column(Integer)
+

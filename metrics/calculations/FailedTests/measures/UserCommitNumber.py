@@ -1,17 +1,36 @@
+from DbManager import DbManager
 from SqlAlchemyBase import Session
 from metrics.calculations.FailedTests.measures.Measure import Measure
 from model.Commit import Commit
 from model.PullRequest import PullRequest
+from model.Repository import Repository
+from model.User import User
 
 
 class UserCommitNumber(Measure):
     def value(self, pull: PullRequest, commit: Commit = None) -> int:
-        db_session = Session()
-        commit_ids = db_session.query(Commit.id).filter(Commit.author_id == commit.author_id).order_by(Commit.created_at).all()
-        commit_ids_for_repo = [commit_id[0] for commit_id in commit_ids if db_session.query(Commit).
-            where(Commit.id == commit_id[0]).one().pull_request.repository_id == pull.repository_id]
-        # commit_ids_for_repo = list(map(lambda commit: commit.id, commits_for_repo))
-        position = commit_ids_for_repo.index(commit.id)
+        return commit.user_commit_number
 
-        print(position)
-        return position
+    def mark_user_commit_number(self):
+        db_session = Session()
+        db_manager = DbManager(db_session)
+        users = db_session.query(User).all()
+        repos = db_session.query(Repository).all()
+        for user in users:
+            repo_commits = [[]] * len(repos)
+            for commit in user.commits:
+                repo_commits[commit.pull_request.repository_id - 1].append(commit)
+            for i in range(0, len(repos)):
+                repo_commits[i].sort(key=self.sortFunc)
+                for j in range (0, len(repo_commits[i])):
+                    commit = repo_commits[i][j]
+                    commit.user_commit_number = j + 1
+                    db_manager.save(commit)
+            print(user.id)
+
+    def sortFunc(self, commit: Commit):
+        return commit.created_at
+
+
+# ucn = UserCommitNumber()
+# ucn.mark_user_commit_number()
