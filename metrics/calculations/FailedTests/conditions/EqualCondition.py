@@ -4,12 +4,10 @@ from model.Commit import Commit
 from model.PullRequest import PullRequest
 
 
-class RangeCondition(Condition):
-    def __init__(self, measure: Measure, start: int, end: int):
+class EqualCondition(Condition):
+    def __init__(self, measure: Measure, value):
         self.measure = measure
-        self.start = start
-        self.end = end
+        self.value = value
 
     def is_fulfilled(self, pull: PullRequest, commit: Commit = None) -> bool:
-        value = self.measure.value(pull, commit)
-        return self.start <= value < self.end
+        return self.measure.value(pull, commit) == self.value

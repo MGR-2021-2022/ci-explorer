@@ -3,5 +3,5 @@ from model.PullRequest import PullRequest
 
 
 class Measure:
-    def value(self, pull: PullRequest, commit: Commit = None) -> int:
+    def value(self, pull: PullRequest, commit: Commit = None):
         return -1

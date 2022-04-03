@@ -18,12 +18,23 @@ groupsFactory = GroupsFactory()
 for repo in repos:
     # result = FlickeringTestsCalc.execute(repo)
 
+
+
+    #1a
+    # todo opcjonalnie dodać inne grupy dla innych repo
+    # result = FailedTestsCalc.execute(repo, groupsFactory.getInspectionTypeGroups())
+
+    #1b
     # result = FailedTestsCalc.execute(repo, groupsFactory.getInspectionTimeGroups())
+
+    #1C
+    result = FailedTestsCalc.execute(repo, groupsFactory.getIsAuthorGroups())
+
+    #1d
     # result = FailedTestsCalc.execute(repo, groupsFactory.getUserCommitNumberGroups())
 
-
     #4
-    result = NumberOfCommitsCalc.execute(repo)
+    # result = NumberOfCommitsCalc.execute(repo)
 
     #6
     # result = ReactionTimeCalc.execute(repo)

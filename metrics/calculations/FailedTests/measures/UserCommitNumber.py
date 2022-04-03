@@ -1,6 +1,6 @@
 from DbManager import DbManager
 from SqlAlchemyBase import Session
-from metrics.calculations.FailedTests.measures.Measure import Measure
+from metrics.calculations.FailedTests.Measure import Measure
 from model.Commit import Commit
 from model.PullRequest import PullRequest
 from model.Repository import Repository
@@ -8,7 +8,7 @@ from model.User import User
 
 
 class UserCommitNumber(Measure):
-    def value(self, pull: PullRequest, commit: Commit = None) -> int:
+    def value(self, pull: PullRequest, commit: Commit = None):
         return commit.user_commit_number
 
     def mark_user_commit_number(self):

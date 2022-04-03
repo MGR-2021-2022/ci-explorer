@@ -30,7 +30,6 @@ class FailedTestsCalc(Calc):
                             results.getResult(group.label).increment_fails()
                         else:
                             results.getResult(group.label).increment_passes()
-                        break
 
         return results
 

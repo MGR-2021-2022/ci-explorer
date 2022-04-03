@@ -1,8 +1,12 @@
 from typing import TypedDict
 
 from metrics.calculations.FailedTests.Condition import Condition
+from metrics.calculations.FailedTests.conditions.EqualCondition import EqualCondition
+from metrics.calculations.FailedTests.conditions.ListCondition import ListCondition
 from metrics.calculations.FailedTests.conditions.RangeCondition import RangeCondition
 from metrics.calculations.FailedTests.measures.InspectionTime import InspectionTime
+from metrics.calculations.FailedTests.measures.InspectionType import InspectionType
+from metrics.calculations.FailedTests.measures.IsAuthor import IsAuthor
 from metrics.calculations.FailedTests.measures.UserCommitNumber import UserCommitNumber
 
 
@@ -12,6 +16,14 @@ class Group:
         self.condition = condition
 
 class GroupsFactory:
+
+    def getInspectionTypeGroups(self):
+        measure = InspectionType()
+        return [
+            Group("richnav", ListCondition(measure, ["richnav"])),
+            Group("darwin", ListCondition(measure, ["darwin"]))
+        ]
+
     def getInspectionTimeGroups(self):
         measure = InspectionTime()
         return [
@@ -24,6 +36,12 @@ class GroupsFactory:
             Group("90-999999", RangeCondition(measure, 90, 999999))
         ]
 
+    def getIsAuthorGroups(self):
+        measure = IsAuthor()
+        return [
+            Group("Author", EqualCondition(measure, True)),
+            Group("Not author", EqualCondition(measure, False))
+        ]
     def getUserCommitNumberGroups(self):
         measure = UserCommitNumber()
         return [

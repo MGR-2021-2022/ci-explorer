@@ -1,4 +1,3 @@
-from metrics.calculations.FailedTests.measures.Measure import Measure
 from model.Commit import Commit
 from model.PullRequest import PullRequest
 
