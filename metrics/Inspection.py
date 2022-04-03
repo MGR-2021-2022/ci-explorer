@@ -3,6 +3,7 @@ from metrics.calculations.CommitterChangeCalc import CommitterChangeCalc
 from metrics.calculations.FailedTests.GroupsFactory import GroupsFactory
 from metrics.calculations.FailedTestsCalc import FailedTestsCalc
 from metrics.calculations.FlickeringTestsCalc import FlickeringTestsCalc
+from metrics.calculations.NumberOfCommitsCalc import NumberOfCommitsCalc
 from metrics.calculations.ReactionTimeCalc import ReactionTimeCalc
 from metrics.results.FlickeringTestsResult import FlickeringTestsResult
 from model.Repository import Repository
@@ -20,8 +21,12 @@ for repo in repos:
     # result = FailedTestsCalc.execute(repo, groupsFactory.getInspectionTimeGroups())
     # result = FailedTestsCalc.execute(repo, groupsFactory.getUserCommitNumberGroups())
 
+
+    #4
+    result = NumberOfCommitsCalc.execute(repo)
+
     #6
-    result = ReactionTimeCalc.execute(repo)
+    # result = ReactionTimeCalc.execute(repo)
 
     #7
     # result = CommitterChangeCalc.execute(repo)
