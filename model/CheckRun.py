@@ -18,3 +18,9 @@ class CheckRun(Base):
     commit = relationship("Commit", back_populates="check_runs")
     started_at = Column(DateTime)
     finished_at = Column(DateTime)
+
+    def is_failed(self) -> bool:
+        return self.conclusion == "failure" or self.conclusion == "cancelled" or self.conclusion is None
+
+    def is_success(self) -> bool:
+        return not self.is_failed()

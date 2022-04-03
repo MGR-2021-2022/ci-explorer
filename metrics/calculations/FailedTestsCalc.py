@@ -2,8 +2,6 @@ from typing import List
 
 from metrics.calculations.Calc import Calc
 from metrics.calculations.FailedTests.GroupsFactory import Group
-from metrics.helpers.ResultsHelper import ResultsHelper
-from metrics.helpers.StatusRecognizer import StatusRecognizer
 from metrics.results.FailedTests.GroupResult import GroupResult
 from metrics.results.FailedTests.SingleResult import SingleResult
 from model.Repository import Repository
@@ -22,7 +20,7 @@ class FailedTestsCalc(Calc):
                 if commit.check_runs is None or len(commit.check_runs) == 0:
                     continue
                 for check in commit.check_runs:
-                    if StatusRecognizer.is_failed(check):
+                    if check.is_failed():
                         is_failed = True
                         break
 

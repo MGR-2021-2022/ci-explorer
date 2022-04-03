@@ -20,3 +20,5 @@ class Commit(Base):
     check_runs = relationship(CheckRun.__name__, back_populates="commit")
     user_commit_number = Column(Integer)
 
+    def has_checks(self) -> bool:
+        return self.check_runs is not None and len(self.check_runs) > 0
