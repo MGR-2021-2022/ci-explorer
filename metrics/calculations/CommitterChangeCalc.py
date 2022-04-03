@@ -39,15 +39,10 @@ class CommitterChangeCalc(Calc):
             if not has_commits:
                 continue
             sub_result: CommitterChangeResult = result.getFail() if fail_in_pr else result.getSuccess()
-            # 'sub_result' is CommitterChangeResult
             sub_result.increment_pr_count()
             sub_result.add_to_authors_count(len(authors))
             sub_result.add_to_first_and_last(first_author == last_author)
             sub_result.add_to_always(same_author)
 
-            # result["total"]["pull_count"] += 1
-            # result["total"]["authors_count"] += len(authors)
-            # result["total"]["first_and_last"] += first_author == last_author
-            # result["total"]["always"] += same_author
 
         return result
