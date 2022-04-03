@@ -27,11 +27,14 @@ for repo in repos:
     #1b
     # result = FailedTestsCalc.execute(repo, groupsFactory.getInspectionTimeGroups())
 
-    #1C
-    result = FailedTestsCalc.execute(repo, groupsFactory.getIsAuthorGroups())
+    #1c
+    # result = FailedTestsCalc.execute(repo, groupsFactory.getIsAuthorGroups())
 
     #1d
     # result = FailedTestsCalc.execute(repo, groupsFactory.getUserCommitNumberGroups())
+
+    #1e
+    result = FailedTestsCalc.execute(repo, groupsFactory.getTechnologyGroups())
 
     #4
     # result = NumberOfCommitsCalc.execute(repo)

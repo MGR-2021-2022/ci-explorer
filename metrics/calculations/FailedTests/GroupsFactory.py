@@ -7,6 +7,7 @@ from metrics.calculations.FailedTests.conditions.RangeCondition import RangeCond
 from metrics.calculations.FailedTests.measures.InspectionTime import InspectionTime
 from metrics.calculations.FailedTests.measures.InspectionType import InspectionType
 from metrics.calculations.FailedTests.measures.IsAuthor import IsAuthor
+from metrics.calculations.FailedTests.measures.Technology import Technology
 from metrics.calculations.FailedTests.measures.UserCommitNumber import UserCommitNumber
 
 
@@ -42,6 +43,7 @@ class GroupsFactory:
             Group("Author", EqualCondition(measure, True)),
             Group("Not author", EqualCondition(measure, False))
         ]
+
     def getUserCommitNumberGroups(self):
         measure = UserCommitNumber()
         return [
@@ -54,3 +56,8 @@ class GroupsFactory:
             Group("2000-999999", RangeCondition(measure, 2000, 999999))
         ]
 
+    def getTechnologyGroups(self):
+        measure = Technology()
+        return [
+            Group("TypeScript", EqualCondition(measure, "TypeScript")),
+        ]
