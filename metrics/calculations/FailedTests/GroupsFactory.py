@@ -7,7 +7,9 @@ from metrics.calculations.FailedTests.conditions.RangeCondition import RangeCond
 from metrics.calculations.FailedTests.measures.InspectionTime import InspectionTime
 from metrics.calculations.FailedTests.measures.InspectionType import InspectionType
 from metrics.calculations.FailedTests.measures.IsAuthor import IsAuthor
+from metrics.calculations.FailedTests.measures.SourceCodeLinesChanged import SourceCodeLinesChanged
 from metrics.calculations.FailedTests.measures.Technology import Technology
+from metrics.calculations.FailedTests.measures.TestCodeLinesChanged import TestCodeLinesChanged
 from metrics.calculations.FailedTests.measures.UserCommitNumber import UserCommitNumber
 
 
@@ -60,4 +62,32 @@ class GroupsFactory:
         measure = Technology()
         return [
             Group("TypeScript", EqualCondition(measure, "TypeScript")),
+        ]
+
+    def getSourceCodeLinesChanged(self):
+        measure = SourceCodeLinesChanged()
+        return [
+            Group("0-10", RangeCondition(measure, 0, 10)),
+            Group("10-30", RangeCondition(measure, 10, 30)),
+            Group("30-50", RangeCondition(measure, 30, 50)),
+            Group("50-100", RangeCondition(measure, 50, 100)),
+            Group("100-200", RangeCondition(measure, 100, 200)),
+            Group("200-500", RangeCondition(measure, 200, 500)),
+            Group("500-2000", RangeCondition(measure, 500, 2000)),
+            Group("2000-5000", RangeCondition(measure, 2000, 5000)),
+            Group("5000-999999", RangeCondition(measure, 5000, 99999))
+        ]
+
+    def getTestCodeLinesChanged(self):
+        measure = TestCodeLinesChanged()
+        return [
+            Group("0-10", RangeCondition(measure, 0, 10)),
+            Group("10-30", RangeCondition(measure, 10, 30)),
+            Group("30-50", RangeCondition(measure, 30, 50)),
+            Group("50-100", RangeCondition(measure, 50, 100)),
+            Group("100-200", RangeCondition(measure, 100, 200)),
+            Group("200-500", RangeCondition(measure, 200, 500)),
+            Group("500-2000", RangeCondition(measure, 500, 2000)),
+            Group("2000-5000", RangeCondition(measure, 2000, 5000)),
+            Group("5000-999999", RangeCondition(measure, 5000, 99999))
         ]

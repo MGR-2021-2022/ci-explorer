@@ -65,13 +65,15 @@ def set_db() -> (DbManager, UserRepository, RepositoryRepository, Session):
 
 def connect_repo():
     global g
-    g = Github(base_url="https://api.github.com", login_or_token="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")
+    g = Github(base_url="https://api.github.com", login_or_token="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")
 
 
 def save_repo(db_manager: DbManager, user_repository: UserRepository, repository_repository: RepositoryRepository
               ) -> (Repository, RepositoryModel):
     # repo_name = 'ishepard/pydriller'
-    repo_name = 'microsoft/vscode'
+    # repo_name = 'microsoft/vscode'
+    repo_name = 'django/django'
+
     repo = g.get_repo(repo_name)
     owner = repo.owner
     user_model = user_repository.findOrCreate(owner.login)
