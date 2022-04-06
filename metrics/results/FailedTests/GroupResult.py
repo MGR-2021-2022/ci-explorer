@@ -8,6 +8,15 @@ class GroupResult(Result):
     def __init__(self):
         self.results: Dict[str, SingleResult] = {}
 
+    def __add__(self, o):
+        results = {}
+        for label in self.results.keys():
+            print(label)
+            results[label] = self.results[label] + o.results[label]
+        group_result = GroupResult()
+        group_result.results = results
+        return group_result
+
     def getResult(self, label: str) -> SingleResult:
         return self.results[label]
 

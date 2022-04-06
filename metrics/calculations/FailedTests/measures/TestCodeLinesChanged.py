@@ -9,6 +9,5 @@ class TestCodeLinesChanged(Measure):
         lines = 0
         for filename in commit.modified_files.keys():
             if CodeLinesChangedHelper.isSrc(filename, True):
-                print(filename)
                 lines += commit.modified_files[filename]
         return lines

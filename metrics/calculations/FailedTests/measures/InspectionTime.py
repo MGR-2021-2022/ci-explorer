@@ -40,8 +40,8 @@ class InspectionTime(Measure):
                 pull_time_count += 1
         if pull_time_count != 0:
             avg_time = pull_time / pull_time_count
-            if avg_time.seconds // 60 < 10:
-                print("avg: " + str(avg_time) + " - " + str(pull.number))
+            # if avg_time.seconds // 60 < 10:
+            #     print("avg: " + str(avg_time) + " - " + str(pull.number))
             return avg_time.seconds // 60
         else:
           return -1
