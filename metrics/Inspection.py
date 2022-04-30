@@ -1,10 +1,13 @@
 from SqlAlchemyBase import Session
+from metrics.calculations.CommitNumberWhenCICalc import CommitNumberWhenCICalc
 from metrics.calculations.CommitterChangeCalc import CommitterChangeCalc
 from metrics.calculations.FailedTests.GroupsFactory import GroupsFactory
 from metrics.calculations.FailedTestsCalc import FailedTestsCalc
 from metrics.calculations.FilesChangedAfterFailCalc import FilesChangedAfterFailCalc
 from metrics.calculations.FlickeringTestsCalc import FlickeringTestsCalc
+from metrics.calculations.IsInspectionEnoughCalc import IsInspectionEnoughCalc
 from metrics.calculations.NumberOfCommitsCalc import NumberOfCommitsCalc
+from metrics.calculations.PipelineGrowthCalc import PipelineGrowthCalc
 from metrics.calculations.ReactionTimeCalc import ReactionTimeCalc
 from metrics.results.FlickeringTestsResult import FlickeringTestsResult
 from model.Repository import Repository
@@ -17,7 +20,6 @@ groupsFactory = GroupsFactory()
 
 
 for repo in repos:
-    # result = FlickeringTestsCalc.execute(repo)
 
 
 
@@ -44,16 +46,28 @@ for repo in repos:
     # result = FailedTestsCalc.execute(repo, groupsFactory.getTestCodeLinesChanged())
 
     #2
-    result = FilesChangedAfterFailCalc.execute(repo)
+    # result = FilesChangedAfterFailCalc.execute(repo)
 
     #4
     # result = NumberOfCommitsCalc.execute(repo)
+
+    #5
+    # result = CommitNumberWhenCICalc.execute(repo)
 
     #6
     # result = ReactionTimeCalc.execute(repo)
 
     #7
     # result = CommitterChangeCalc.execute(repo)
+
+    #8
+    # result = FlickeringTestsCalc.execute(repo)
+
+    #9
+    result = IsInspectionEnoughCalc.execute(repo)
+
+    #10
+    # result = PipelineGrowthCalc.execute(repo)
 
     print(repo.name)
     result.print()

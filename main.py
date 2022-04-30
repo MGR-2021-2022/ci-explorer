@@ -65,14 +65,23 @@ def set_db() -> (DbManager, UserRepository, RepositoryRepository, Session):
 
 def connect_repo():
     global g
-    g = Github(base_url="https://api.github.com", login_or_token="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")
+    g = Github(base_url="https://api.github.com", login_or_token="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")
 
 
 def save_repo(db_manager: DbManager, user_repository: UserRepository, repository_repository: RepositoryRepository
               ) -> (Repository, RepositoryModel):
-    # repo_name = 'ishepard/pydriller'
     # repo_name = 'microsoft/vscode'
-    repo_name = 'django/django'
+    # repo_name = 'django/django'
+    # repo_name = 'bitcoin/bitcoin'
+    # repo_name = 'facebook/lexical'
+    # repo_name = 'hashicorp/terraform'
+    # repo_name = 'laravel/framework'
+    # repo_name = 'diasurgical/devilutionX'
+    # repo_name = 'flutter/flutter'
+    # repo_name = 'starship/starship'
+    repo_name = 'microsoft/CBL-Mariner'
+    #MarlinFirmware / Marlin
+    # nuxt / framework
 
     repo = g.get_repo(repo_name)
     owner = repo.owner
@@ -103,13 +112,20 @@ def skip_pull(current: int, destination: int):
     return destination != 0 and destination is not None and current >= destination
 
 
-def remove_last_pull_request(pull_request_model: PullRequestModel):
+def remove_pull_request(pull_request_model: PullRequestModel):
     global db_manager
     for commit_model in pull_request_model.commits:
         for check_model in commit_model.check_runs:
             db_manager.remove(check_model)
         db_manager.remove(commit_model)
     db_manager.remove(pull_request_model)
+
+def remove_repo(repository_model: RepositoryModel):
+    global db_manager
+    for pull_model in repository_model.pull_requests:
+        remove_pull_request(pull_model)
+    db_manager.remove(repository_model)
+
 
 
 def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
@@ -121,14 +137,27 @@ def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
     next_pull = True
     failed_pull = 0
     failed_pull_counter = 0
+    previous = 0
     while pull != 0:
         if skip_pull(pull.number, last_pull_number):
             print("Already fetched. Skipping pull request with number:" + str(pull.number))
-            pull = next(pulls, 0)
+            try:
+                previous = pull
+                pull = next(pulls, 0)
+            except Exception as e:
+                print("Failed next(): 1")
+                pull = previous
+                pass
             continue
-        if pull.base.ref != "main" and pull.base.ref != "master":
+        if pull.base.ref != "main" and pull.base.ref != "master" and pull.base.ref != "develop":
             print("Not main. Skipping pull request with number:" + str(pull.number))
-            pull = next(pulls, 0)
+            try:
+                previous = pull
+                pull = next(pulls, 0)
+            except Exception as e:
+                print("Failed next(): 2")
+                pull = previous
+                pass
             continue
         try:
             pull_request_model = PullRequestModel(number=pull.number, repository_id=repo_model.id,
@@ -139,7 +168,7 @@ def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
         except Exception as e:
             print("Fail due to internal error on PR: " + str(pull_request_model.number))
             if pull_request_model != None:
-                remove_last_pull_request(pull_request_model)
+                remove_pull_request(pull_request_model)
                 if failed_pull == pull_request_model.number and not isinstance(e, RateLimitExceededException):
                     failed_pull_counter += 1
                 else:
@@ -147,7 +176,7 @@ def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
                     failed_pull_counter = 1
 
             if failed_pull_counter >= 5:
-                pull_request_model = PullRequestModel(number=pull.number, failed_to_fetch = True)
+                pull_request_model = PullRequestModel(number=pull.number, failed_to_fetch=True)
                 db_manager.save(pull_request_model)
                 print(str(pull.number) + "marked as failed to fetch")
                 next_pull = True
@@ -160,7 +189,13 @@ def inspects_pulls(pulls, main_branch_name: str, last_pull_number = 0):
                 next_pull = True
             pass
         if next_pull is True:
-            pull = next(pulls, 0)
+            try:
+                previous = pull
+                pull = next(pulls, 0)
+            except Exception as e:
+                print("Failed next(): 3")
+                pull = previous
+                pass
     repo_model.finished = True
     db_manager.save(repo_model)
     print("Successfully finished data download for: " + str(repo_model.name))
@@ -171,11 +206,15 @@ connect_repo()
 (repo_model, repo) = save_repo(db_manager, user_repository, repository_repository)
 
 pulls = repo.get_pulls('closed')
-last_pull_number = get_last_pull_number(repo_model)
+
 # pull_to_rm = db_manager.query(PullRequestModel).filter(PullRequestModel.number==134402).first()
 # remove_last_pull_request(pull_to_rm)
+# remove_repo(repo_model)
+
+for i in range(1, 100):
+    last_pull_number = get_last_pull_number(repo_model)
+    inspects_pulls(pulls, 'master', last_pull_number)
 inspects_pulls(pulls, 'master', last_pull_number)
-# inspects_pulls(pulls, 'master', last_pull_number)
 
 
 # usunąć globale

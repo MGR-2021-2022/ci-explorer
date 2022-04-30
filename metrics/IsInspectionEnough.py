@@ -1,5 +1,7 @@
 from SqlAlchemyBase import Session
 from metrics.helpers.ResultsHelper import ResultsHelper
+from metrics.results.IsInspectionEnoughResult import IsInspectionEnoughResult
+from model.CheckRun import CheckRun
 from model.PullRequest import PullRequest
 from model.Repository import Repository
 
@@ -8,10 +10,8 @@ from model.Repository import Repository
 
 # reaction time in seconds
 def count_when_inspection_was_not_enough(repo: Repository) -> object:
-    # result = [0] * 99
-    result = {"pushes": 0, "passed_pushes": 0, "pr_with_pass": 0, "pr": 0, "commit_after_pass": [0] * 99}
-    result["pr"] = len(repo.pull_requests)
-
+    result = IsInspectionEnoughResult()
+    result.add_to_pulls(len(repo.pull_requests))
     for pull in repo.pull_requests:
         push_with_pass = False
         previous_commit_passed = False
@@ -19,21 +19,21 @@ def count_when_inspection_was_not_enough(repo: Repository) -> object:
         for commit in pull.commits:
             current_commit_passed = True
             if commit.check_runs is not None and len(commit.check_runs) > 0:
-                result["pushes"] += 1
+                result.add_to_pushes(1)
+                check: CheckRun
                 for check in commit.check_runs:
-                    if(check.conclusion == 'failure'):
+                    if check.is_failed():
                         current_commit_passed = False
                         break
 
                 if previous_commit_passed is True:
                     push_with_pass = True
                     passed_commits += 1
-                    result["commit_after_pass"][passed_commits] += 1
 
                 previous_commit_passed = current_commit_passed
 
-        result["passed_pushes"] += passed_commits
-        result["pr_with_pass"] += push_with_pass
+        result.add_to_pushes_after_pass(passed_commits)
+        result.add_to_pulls_with_after_pass(push_with_pass)
     return result
 
 

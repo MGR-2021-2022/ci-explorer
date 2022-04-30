@@ -15,25 +15,12 @@ class InspectionTime(Measure):
         pull_time = datetime.timedelta(0)
         pull_time_count = 0
         for commit in pull.commits:
-            earliest_start = None
-            latest_end = None
-
-            passed = True
-            for check_run in commit.check_runs:
-                if StatusRecognizer.is_failed(check_run):
-                    passed = False
-            if passed is False:
+            if commit.has_failed_inspection():
                 continue
 
-            for check_run in commit.check_runs:
-                if check_run.started_at is not None and earliest_start is None:
-                    earliest_start = check_run.started_at
-                elif earliest_start > check_run.started_at:
-                    earliest_start = check_run.started_at
-                if latest_end is None:
-                    latest_end = check_run.finished_at
-                elif check_run.finished_at is not None and latest_end < check_run.finished_at:
-                    latest_end = check_run.finished_at
+            earliest_start = commit.get_inspection_start()
+            latest_end = commit.get_inspection_end()
+
             if earliest_start is not None and latest_end is not None:
                 time = latest_end - earliest_start
                 pull_time += time

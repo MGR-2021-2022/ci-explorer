@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import relationship
 from SqlAlchemyBase import Base
@@ -22,3 +24,31 @@ class Commit(Base):
 
     def has_checks(self) -> bool:
         return self.check_runs is not None and len(self.check_runs) > 0
+
+    def has_failed_inspection(self) -> bool:
+        for check_run in self.check_runs:
+            if check_run.is_failed():
+                return True
+        return False
+
+    def get_inspection_start(self) -> datetime:
+        earliest_start = None
+
+        for check_run in self.check_runs:
+            if check_run.started_at is not None and earliest_start is None:
+                earliest_start = check_run.started_at
+            elif earliest_start > check_run.started_at:
+                earliest_start = check_run.started_at
+
+        return earliest_start
+
+    def get_inspection_end(self) -> datetime:
+        latest_end = None
+
+        for check_run in self.check_runs:
+            if check_run.finished_at is not None and latest_end is None:
+                latest_end = check_run.finished_at
+            elif check_run.finished_at is not None and latest_end < check_run.finished_at:
+                latest_end = check_run.finished_at
+
+        return latest_end
