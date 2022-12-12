@@ -22,7 +22,7 @@ def count_when_inspection_was_not_enough(repo: Repository) -> object:
                 result.add_to_pushes(1)
                 check: CheckRun
                 for check in commit.check_runs:
-                    if check.is_failed():
+                    if check.has_problem():
                         current_commit_passed = False
                         break
 

@@ -30,8 +30,14 @@ class IsInspectionEnoughResult(Result):
         self.pulls_with_after_pass += pulls_after_pass
 
     def print(self):
-        print("Commits (tested) after pass in pr: " + str(self.pushes_after_pass / self.pulls) + " (" + str(self.pulls) + ") - smd - " + str(self.standard_mean_deviation(self.pushes_after_pass_array, self.pushes_after_pass / self.pulls)))
-        print("Pull requests with commits after pass: " + str(self.pulls_with_after_pass / self.pulls * 100.0) + "% (" + str(self.pulls) + ")")
+        # print("Commits (tested) after pass in pr: " + str(self.pushes_after_pass / self.pulls) + " (" + str(self.pulls) + ") - smd - " + str(self.standard_mean_deviation(self.pushes_after_pass_array, self.pushes_after_pass / self.pulls)))
+        # print("Pull requests with commits after pass: " + str(self.pulls_with_after_pass / self.pulls * 100.0) + "% (" + str(self.pulls) + ")")
+
+
+        print(str(self.pulls) + " " + str(self.pulls_with_after_pass) + " " + self.percentage_formatted(self.pulls_with_after_pass / self.pulls) + " " + str(self.pushes_after_pass) + " " +
+              str(self.pushes_after_pass / self.pulls) + " " + self.standard_mean_deviation(self.pushes_after_pass_array, self.pushes_after_pass / self.pulls))
+
+
         # print("pulls: " + str(self.pr_count) + " | commits: " + str(
         #     self.commit_count) + " | average: " + str(
         #     self.commit_count / self.pr_count))

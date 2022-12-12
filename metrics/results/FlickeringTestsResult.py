@@ -19,7 +19,7 @@ class FlickeringTestsResult(Result):
         self.flickering_tests += 1
 
     def print(self):
-        print("Pushes: " + str(self.pushes))
-        print("Flicerking tests: " + str(self.flickering_tests))
-
+        # print("Pushes: " + str(self.pushes))
+        # print("Flicerking tests: " + str(self.flickering_tests))
+        print(str(self.pushes) + " " + str(self.flickering_tests) + " " + self.percentage_formatted(self.flickering_tests/self.pushes))
 

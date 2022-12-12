@@ -19,8 +19,11 @@ class CheckRun(Base):
     started_at = Column(DateTime)
     finished_at = Column(DateTime)
 
-    def is_failed(self) -> bool:
+    def has_problem(self) -> bool:
         return self.conclusion == "failure" or self.conclusion == "cancelled" or self.conclusion is None
 
+    def is_failed(self) -> bool:
+        return self.conclusion == "failure" or self.conclusion == "action_required"
+
     def is_success(self) -> bool:
-        return not self.is_failed()
+        return not self.has_problem()

@@ -10,9 +10,14 @@ from model.Repository import Repository
 
 class ReactionTimeCalc(Calc):
     def execute(repo: Repository) -> Result:
-        result = SuccessFailResult(ReactionTimeResult)
+        # result = SuccessFailResult(ReactionTimeResult)
 
+        result = ReactionTimeResult()
+        pull_numbers = []
         for pull in repo.pull_requests:
+            if pull.number in pull_numbers:
+                continue
+            pull_numbers.append(pull.number)
             previous_commit_failed = False
             previous_commit_date = None
             for commit in pull.commits:
@@ -20,14 +25,13 @@ class ReactionTimeCalc(Calc):
                 current_commit_date = commit.created_at
                 if commit.has_checks():
                     for check in commit.check_runs:
-                        if check.is_failed():
+                        if check.has_problem():
                             current_commit_failed = True
                             break
 
-                    if previous_commit_date is not None:
-                        sub_result: ReactionTimeResult = result.getFail() if previous_commit_failed else result.getSuccess()
-                        sub_result.increment_pushes()
-                        sub_result.add_to_reaction_time((current_commit_date - previous_commit_date).seconds / 3600)
+                    if previous_commit_date is not None and previous_commit_failed and not current_commit_failed:
+                        result.add_to_reaction_time((current_commit_date - previous_commit_date).total_seconds() / 3600)
+
                     previous_commit_date = current_commit_date
                     previous_commit_failed = current_commit_failed
 

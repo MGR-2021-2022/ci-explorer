@@ -11,7 +11,6 @@ class GroupResult(Result):
     def __add__(self, o):
         results = {}
         for label in self.results.keys():
-            print(label)
             results[label] = self.results[label] + o.results[label]
         group_result = GroupResult()
         group_result.results = results
@@ -24,6 +23,11 @@ class GroupResult(Result):
         self.results[label] = result
 
     def print(self):
+        results = SingleResult()
         for label in self.results.keys():
-            print(label)
+            # print(label)
             self.results[label].print()
+            results += self.results[label]
+            # print("")
+        # print("Total")
+        results.print()

@@ -17,7 +17,9 @@ class UserCommitNumber(Measure):
         users = db_session.query(User).all()
         repos = db_session.query(Repository).all()
         for user in users:
-            repo_commits = [[]] * len(repos)
+            if user.id < 17695:
+                continue
+            repo_commits = [[]] * 14
             for commit in user.commits:
                 repo_commits[commit.pull_request.repository_id - 1].append(commit)
             for i in range(0, len(repos)):

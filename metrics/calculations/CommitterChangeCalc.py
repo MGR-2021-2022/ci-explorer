@@ -14,7 +14,11 @@ class CommitterChangeCalc(Calc):
     def execute(repo: Repository) -> Result:
         result = SuccessFailResult(CommitterChangeResult)
 
+        pull_numbers = []
         for pull in repo.pull_requests:
+            if pull.number in pull_numbers:
+                continue
+            pull_numbers.append(pull.number)
             fail_in_pr = False
             authors = []
             first_author = None
@@ -33,7 +37,7 @@ class CommitterChangeCalc(Calc):
                 if author not in authors:
                     authors.append(author)
                 for check in commit.check_runs:
-                    if check.is_failed():
+                    if check.has_problem():
                         fail_in_pr = True
                         break
             if not has_commits:

@@ -9,13 +9,17 @@ from model.Repository import Repository
 class FilesChangedAfterFailCalc(Calc):
     def execute(repo: Repository) -> FilesChangedAfterFailResult:
         result = FilesChangedAfterFailResult()
+        inspected_checks = []
         for pull in repo.pull_requests:
             previous_commit_failed = False
             for commit in pull.commits:
                 current_commit_failed = False
                 if commit.has_checks():
+                    if commit.has_checks_in(inspected_checks):
+                        continue
+                    commit.add_check_to(inspected_checks)
                     for check in commit.check_runs:
-                        if check.is_failed():
+                        if check.has_problem():
                             current_commit_failed = True
                             result.increment_fails()
                             break

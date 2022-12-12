@@ -27,7 +27,7 @@ class Commit(Base):
 
     def has_failed_inspection(self) -> bool:
         for check_run in self.check_runs:
-            if check_run.is_failed():
+            if check_run.has_problem():
                 return True
         return False
 
@@ -52,3 +52,14 @@ class Commit(Base):
                 latest_end = check_run.finished_at
 
         return latest_end
+
+    def has_checks_in(self, checks: list) -> bool:
+        if self.check_runs is not None and len(self.check_runs) > 0:
+            if self.check_runs[0].github_id in checks:
+                return True
+            return False
+        return False
+
+    def add_check_to(self, checks):
+        for check_run in self.check_runs:
+            checks.append(check_run.github_id)

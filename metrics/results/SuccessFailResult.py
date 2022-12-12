@@ -22,12 +22,12 @@ class SuccessFailResult(Result):
         return self.fail
 
     def print(self):
-        print("Succes:")
-        self.success.print()
-        print("Fail:")
+        # print("Succes:")
+        # self.success.print()
+        # print("Fail:")
         self.fail.print()
-        print("Total")
-        (self.success + self.fail).print()
+        # print("Total")
+        # (self.success + self.fail).print()
 
     def __add__(self, o):
         return SuccessFailResult(None, self.success + o.success, self.fail + o.fail)

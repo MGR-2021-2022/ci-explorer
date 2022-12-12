@@ -28,6 +28,8 @@ class CommitNumberWhenCIResult(Result):
         self.results[label].add_commits(commits)
 
     def print(self):
-        for label in self.results.keys():
-            print(label)
-            self.results[label].print()
+        # for label in self.results.keys():
+        #     print(label, end="")
+        # self.results['github_action'].print()
+        # self.results['third_party'].print()
+        self.results['no_ci'].print()

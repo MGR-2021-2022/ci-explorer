@@ -11,9 +11,14 @@ class PipelineGrowthCalc(Calc):
     def execute(repo: Repository) -> Result:
         result = PipelineGrowthResult()
 
+        inspected_checks = []
+
         for pull in repo.pull_requests:
             for commit in pull.commits:
                 if commit.has_checks():
+                    if commit.has_checks_in(inspected_checks):
+                        continue
+                    commit.add_check_to(inspected_checks)
                     if commit.has_failed_inspection():
                         continue
 
@@ -22,6 +27,6 @@ class PipelineGrowthCalc(Calc):
 
                     if earliest_start is not None and latest_end is not None:
                         time = latest_end - earliest_start
-                        result.addMinutes(commit.created_at, time.seconds // 60)
+                        result.addMinutes(earliest_start, time.seconds // 60)
 
         return result

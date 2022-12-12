@@ -16,6 +16,11 @@ class SingleResult(Result):
         self.fails += 1
 
     def print(self):
-        print("Passes: " + str(self.passes))
-        print("Fails: " + str(self.fails))
-        print("Total: " + str(self.passes + self.fails))
+        if self.passes + self.fails == 0:
+            print('')
+            return
+        print(str(self.passes) + " " + self.percentage_formatted(self.passes/(self.passes + self.fails)) + " " + str(self.fails) + " " +
+              self.percentage_formatted(self.fails/(self.passes + self.fails)) + " " + str(self.passes + self.fails))
+        # print("Passes: " + str(self.passes))
+        # print("Fails: " + str(self.fails))
+        # print("Total: " + str(self.passes + self.fails))

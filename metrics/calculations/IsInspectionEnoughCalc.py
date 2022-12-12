@@ -7,18 +7,25 @@ from model.Repository import Repository
 class IsInspectionEnoughCalc(Calc):
     def execute(repo: Repository) -> Result:
         result = IsInspectionEnoughResult()
+        inspected_checks = []
         for pull in repo.pull_requests:
+            if not pull.merged:
+                continue
+
             push_with_pass = False
             previous_commit_passed = False
             has_checks = False
             passed_commits = 0
             for commit in pull.commits:
+                if commit.has_checks_in(inspected_checks):
+                    continue
+                commit.add_check_to(inspected_checks)
                 current_commit_passed = True
                 if commit.check_runs is not None and len(commit.check_runs) > 0:
                     has_checks = True
                     result.add_to_pushes(1)
                     for check in commit.check_runs:
-                        if check.is_failed():
+                        if check.has_problem():
                             current_commit_passed = False
                             break
 

@@ -26,7 +26,10 @@ class FilesChangedAfterFailResult(Result):
 
     def print(self):
         print("Fails: " + str(self.fails))
-        print("Time src files were modified: " + str(self.modified_src) + " " + str(self.modified_src/self.fails))
-        print("Time test files were modified: " + str(self.modified_test) + " " + str(self.modified_test/self.fails))
-        print("Time config files were modified: " + str(self.modified_config) + " " + str(self.modified_config/self.fails))
-        print()
+        # print("Time src files were modified: " + str(self.modified_src) + " " + str(self.modified_src/self.fails))
+        # print("Time test files were modified: " + str(self.modified_test) + " " + str(self.modified_test/self.fails))
+        # print("Time config files were modified: " + str(self.modified_config) + " " + str(self.modified_config/self.fails))
+        # print()
+        print(str(self.modified_src) + " " + str(self.percentage_formatted(self.modified_src / self.fails)))
+        print(str(self.modified_test) + " " + str(self.percentage_formatted(self.modified_test / self.fails)))
+        print(str(self.modified_config) + " " + str(self.percentage_formatted(self.modified_config / self.fails)))
